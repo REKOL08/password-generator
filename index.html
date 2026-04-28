@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<!--
+  ╔══════════════════════════════════════════════╗
+  ║   Generador de Contraseñas Seguras           ║
+  ║   Autor  : REKOL08                           ║
+  ║   GitHub : github.com/REKOL08                ║
+  ║   Versión: 1.0.0                             ║
+  ║   Licencia: MIT                              ║
+  ║                                              ║
+  ║   Hola, curioso/a 👋                         ║
+  ║   Si encontraste esto revisando el código,   ║
+  ║   bienvenido/a. Si lo copiaste sin crédito,  ║
+  ║   también te encontré yo a ti. 😏            ║
+  ╚══════════════════════════════════════════════╝
+-->
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="author" content="REKOL08 — github.com/REKOL08" />
+  <meta name="generator" content="REKOL08" />
+  <title>Generador de Contraseñas Seguras</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0f1117;
+      --surface: #1a1d27;
+      --surface2: #22263a;
+      --border: rgba(255,255,255,0.08);
+      --border-hover: rgba(255,255,255,0.18);
+      --text: #f0f0f5;
+      --text-muted: #8a8fa8;
+      --text-hint: #555a70;
+      --accent: #5b6af0;
+      --accent-bg: rgba(91,106,240,0.12);
+      --success: #1DB87A;
+      --success-bg: rgba(29,184,122,0.12);
+      --danger: #E24B4A;
+      --warn: #EF9F27;
+      --radius-md: 8px;
+      --radius-lg: 14px;
+      --font-mono: 'Courier New', Courier, monospace;
+    }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 1rem;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 2rem;
+      width: 100%;
+      max-width: 520px;
+    }
+
+    .header { margin-bottom: 1.75rem; }
+    .header h1 { font-size: 18px; font-weight: 600; letter-spacing: -0.01em; }
+    .header p { font-size: 13px; color: var(--text-muted); margin-top: 4px; line-height: 1.5; }
+
+    .output-box {
+      background: var(--surface2);
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 1.1rem 1.25rem;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-height: 62px;
+    }
+    .pass-text {
+      font-family: var(--font-mono);
+      font-size: 17px;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      word-break: break-all;
+      flex: 1;
+      color: var(--text);
+    }
+    .pass-text.empty { color: var(--text-hint); font-size: 13px; font-weight: 400; font-family: inherit; }
+
+    .copy-btn {
+      flex-shrink: 0;
+      background: transparent;
+      border: 0.5px solid var(--border-hover);
+      border-radius: var(--radius-md);
+      padding: 6px 14px;
+      font-size: 13px;
+      cursor: pointer;
+      color: var(--text-muted);
+      transition: all 0.15s;
+      display: none;
+    }
+    .copy-btn:hover { background: rgba(255,255,255,0.06); color: var(--text); }
+    .copy-btn.copied { color: var(--success); border-color: var(--success); }
+
+    .strength-wrap { margin-bottom: 1.5rem; display: none; }
+    .strength-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+    .strength-labels span { font-weight: 600; }
+    .bar-track {
+      height: 5px;
+      background: var(--surface2);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .bar-fill { height: 100%; border-radius: 4px; transition: width 0.35s ease, background 0.35s ease; }
+
+    .section { margin-bottom: 1.25rem; }
+    .section-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+    .section-label span { font-weight: 600; color: var(--text); }
+
+    input[type="range"] {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 4px;
+      background: var(--surface2);
+      border-radius: 4px;
+      outline: none;
+      cursor: pointer;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 18px; height: 18px;
+      border-radius: 50%;
+      background: var(--accent);
+      cursor: pointer;
+      border: 2px solid var(--bg);
+      transition: transform 0.1s;
+    }
+    input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.15); }
+
+    .checks {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 1.25rem;
+    }
+    .check-item {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      background: var(--surface2);
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 9px 12px;
+      cursor: pointer;
+      font-size: 13px;
+      color: var(--text-muted);
+      transition: all 0.15s;
+      user-select: none;
+    }
+    .check-item:hover { border-color: var(--border-hover); color: var(--text); }
+    .check-item.active {
+      border-color: rgba(91,106,240,0.5);
+      background: var(--accent-bg);
+      color: #a0aaff;
+    }
+    .check-dot {
+      width: 14px; height: 14px;
+      border-radius: 50%;
+      border: 1.5px solid currentColor;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      transition: border-color 0.15s;
+    }
+    .check-dot::after {
+      content: '';
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: currentColor;
+      display: none;
+    }
+    .check-item.active .check-dot::after { display: block; }
+
+    .gen-btn {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: var(--radius-md);
+      background: var(--accent);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      color: #fff;
+      letter-spacing: 0.01em;
+      transition: opacity 0.15s, transform 0.1s;
+    }
+    .gen-btn:hover { opacity: 0.88; }
+    .gen-btn:active { transform: scale(0.98); }
+
+    .tip {
+      margin-top: 1.25rem;
+      font-size: 12px;
+      color: var(--text-hint);
+      line-height: 1.65;
+      border-top: 0.5px solid var(--border);
+      padding-top: 1rem;
+    }
+
+    .footer {
+      text-align: center;
+      margin-top: 1.5rem;
+      font-size: 11px;
+      color: var(--text-hint);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="card">
+    <div class="header">
+      <h1>Generador de contraseñas seguras</h1>
+      <p>Crea contraseñas robustas combinando letras, números y símbolos. Ningún dato se envía a ningún servidor.</p>
+    </div>
+
+    <div class="output-box">
+      <span class="pass-text empty" id="passDisplay">Haz clic en "Generar" para comenzar</span>
+      <button class="copy-btn" id="copyBtn" onclick="copyPass()">Copiar</button>
+    </div>
+
+    <div class="strength-wrap" id="strengthWrap">
+      <div class="strength-labels">Fortaleza <span id="strengthLabel">—</span></div>
+      <div class="bar-track"><div class="bar-fill" id="barFill" style="width:0%"></div></div>
+    </div>
+
+    <div class="section">
+      <div class="section-label">Longitud <span id="lenVal">16</span> caracteres</div>
+      <input type="range" min="8" max="64" value="16" id="lengthSlider"
+             oninput="document.getElementById('lenVal').textContent = this.value" />
+    </div>
+
+    <div class="checks">
+      <div class="check-item active" id="chk-upper" onclick="toggle('upper')">
+        <div class="check-dot"></div> Mayúsculas (A-Z)
+      </div>
+      <div class="check-item active" id="chk-lower" onclick="toggle('lower')">
+        <div class="check-dot"></div> Minúsculas (a-z)
+      </div>
+      <div class="check-item active" id="chk-numbers" onclick="toggle('numbers')">
+        <div class="check-dot"></div> Números (0-9)
+      </div>
+      <div class="check-item active" id="chk-symbols" onclick="toggle('symbols')">
+        <div class="check-dot"></div> Símbolos (!@#$)
+      </div>
+    </div>
+
+    <button class="gen-btn" onclick="generate()">Generar contraseña</button>
+
+    <p class="tip">
+      Una contraseña segura combina al menos 3 tipos de caracteres y supera los 12 caracteres.
+      Nunca la compartas ni la reutilices en múltiples servicios. Usa un gestor de contraseñas para almacenarlas.
+    </p>
+
+    <p class="footer">
+      Hecho por <a href="https://github.com/REKOL08" target="_blank"
+        style="color:var(--text-hint);text-decoration:none;border-bottom:0.5px solid var(--border);">
+        REKOL08
+      </a> · MIT License
+    </p>
+  </div>
+
+  <script>
+    /**
+     * @project  Generador de Contraseñas Seguras
+     * @author   REKOL08
+     * @github   github.com/REKOL08
+     * @version  1.0.0
+     * @license  MIT
+     *
+     * Si llegaste hasta aquí revisando el código fuente:
+     * esto lo hice yo, REKOL08. Puedes aprender de él,
+     * pero dale el crédito si lo usas. Es lo correcto. 🤙
+     */
+
+    // ─── firma interna — no tocar ───────────────────────
+    const _REKOL08 = {
+      author:  'REKOL08',
+      github:  'github.com/REKOL08',
+      project: 'password-generator',
+      version: '1.0.0',
+      note:    'Hola desde el código. Soy REKOL08 y esto es mío. 😎'
+    };
+    Object.freeze(_REKOL08);
+    // ────────────────────────────────────────────────────
+
+    const sets = {
+      upper:   'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+      lower:   'abcdefghijklmnopqrstuvwxyz',
+      numbers: '0123456789',
+      symbols: '!@#$%^&*()-_=+[]{}|;:,.<>?'
+    };
+
+    const active = { upper: true, lower: true, numbers: true, symbols: true };
+    let lastPass = '';
+
+    function toggle(key) {
+      const count = Object.values(active).filter(Boolean).length;
+      if (active[key] && count === 1) return; // mínimo 1 activo
+      active[key] = !active[key];
+      document.getElementById('chk-' + key).classList.toggle('active', active[key]);
+    }
+
+    function generate() {
+      const len = parseInt(document.getElementById('lengthSlider').value);
+      let pool = '';
+      const guaranteed = [];
+
+      for (const [k, v] of Object.entries(sets)) {
+        if (active[k]) {
+          pool += v;
+          guaranteed.push(v[Math.floor(Math.random() * v.length)]);
+        }
+      }
+
+      if (!pool) return;
+
+      const arr = [...guaranteed];
+      while (arr.length < len) {
+        arr.push(pool[Math.floor(Math.random() * pool.length)]);
+      }
+
+      // Fisher-Yates shuffle
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+
+      lastPass = arr.join('');
+
+      const disp = document.getElementById('passDisplay');
+      disp.textContent = lastPass;
+      disp.classList.remove('empty');
+
+      const copyBtn = document.getElementById('copyBtn');
+      copyBtn.style.display = 'block';
+      copyBtn.textContent = 'Copiar';
+      copyBtn.classList.remove('copied');
+
+      showStrength(lastPass);
+    }
+
+    function showStrength(p) {
+      let score = 0;
+      if (p.length >= 12) score++;
+      if (p.length >= 20) score++;
+      if (/[A-Z]/.test(p)) score++;
+      if (/[a-z]/.test(p)) score++;
+      if (/[0-9]/.test(p)) score++;
+      if (/[^A-Za-z0-9]/.test(p)) score++;
+
+      const pct = Math.round((score / 6) * 100);
+      const labels = ['Muy débil', 'Débil', 'Regular', 'Buena', 'Fuerte', 'Muy fuerte'];
+      const colors = ['#E24B4A', '#E24B4A', '#EF9F27', '#EF9F27', '#1DB87A', '#1DB87A'];
+      const idx = Math.min(Math.floor(score), 5);
+
+      document.getElementById('strengthWrap').style.display = 'block';
+      document.getElementById('strengthLabel').textContent = labels[idx];
+
+      const bar = document.getElementById('barFill');
+      bar.style.width = pct + '%';
+      bar.style.background = colors[idx];
+    }
+
+    function copyPass() {
+      if (!lastPass) return;
+      navigator.clipboard.writeText(lastPass).then(() => {
+        const btn = document.getElementById('copyBtn');
+        btn.textContent = 'Copiado ✓';
+        btn.classList.add('copied');
+        setTimeout(() => {
+          btn.textContent = 'Copiar';
+          btn.classList.remove('copied');
+        }, 2000);
+      });
+    }
+
+    // ─── troll para quien inspeccione la consola ────────
+    console.log(
+      '%c REKOL08 %c github.com/REKOL08 ',
+      'background:#5b6af0;color:#fff;font-weight:bold;padding:4px 8px;border-radius:4px 0 0 4px;font-size:13px',
+      'background:#22263a;color:#a0aaff;padding:4px 8px;border-radius:0 4px 4px 0;font-size:13px'
+    );
+    console.log('%c¿Buscando algo? Este código tiene dueño. 😏', 'color:#8a8fa8;font-size:12px');
+    // ────────────────────────────────────────────────────
+  </script>
+
+</body>
+</html>
